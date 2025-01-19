@@ -1,0 +1,79 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+.circle {
+  position: relative;
+  width: 600px;
+  height: 600px;
+  margin: 50px auto;
+  border-radius: 50%;
+  border: 4px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #1c1c1c;
+}
+
+.feedback-text {
+  font-size: 1.8rem;
+  font-weight: bold;
+  margin-top: 20px;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.feedback-text.in-tune {
+  color: #00c853;
+}
+
+.feedback-text.sharp {
+  color: #d32f2f;
+}
+
+.feedback-text.flat {
+  color: #1976d2;
+}
+
+.feedback-text:hover {
+  transform: scale(1.05);
+}
+button.start-listening {
+  background: linear-gradient(to bottom, #001f3f, #000000);
+  color: darkgrey;
+  border: none;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+button.start-listening:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+button.start-listening:active {
+  transform: scale(0.95);
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+}
