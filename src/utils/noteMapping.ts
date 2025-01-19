@@ -15,8 +15,6 @@ const notes = [
 
 export const getNote = (frequency: number): string | null => {
   const A4 = 440; // Reference pitch
-  const semitoneRatio = Math.pow(2, 1 / 12);
-
   if (!frequency) return null;
 
   let noteIndex = Math.round(12 * Math.log2(frequency / A4)) + 69;

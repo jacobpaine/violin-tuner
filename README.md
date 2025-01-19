@@ -1,8 +1,10 @@
-# Tuner App
+# Violin Tuner App
 
 A web-based tuner intended for a violin.  The app detects the frequency of sounds in real-time, identifies the closest musical note, and provides feedback on how sharp or flat the pitch is.
 
-Musical tuners can be especially finicky. This one is optimized for a violin, not necessarily other tones, like the human voice, whistling, or a otherwise. Plucking the strings can be accurate, but for best results use your bow. 
+Musical tuners can be especially finicky. This one is optimized for a violin, not necessarily other tones, like the human voice, whistling, or a otherwise. Plucking the strings can be accurate, but for best results use your bow.
+
+This particular tuner is intended for our local community music center here in Nashville, the [Fiddle and Pick](https://fiddleandpick.com/).
 
 ---
 

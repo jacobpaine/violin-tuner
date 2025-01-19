@@ -85,7 +85,6 @@ const Tuner: React.FC = () => {
   const findClosestNote = useCallback(
     (frequency: number) => {
       const A4 = 440;
-      const SEMITONE_RATIO = Math.pow(2, 1 / 12);
       const noteIndex = Math.round(
         12 * Math.log2(frequency / A4) + chromaticScale.indexOf("A4")
       );
@@ -110,8 +109,7 @@ const Tuner: React.FC = () => {
       current.audioContext.close();
       oscillators.current.delete(note);
     } else {
-      const audioContext = new (window.AudioContext ||
-        window.webkitAudioContext)();
+      const audioContext = new window.AudioContext();
       const oscillator = audioContext.createOscillator();
       const gainNode = audioContext.createGain();
 
