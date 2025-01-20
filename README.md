@@ -6,6 +6,7 @@ Musical tuners can be especially finicky. This one is optimized for a violin, no
 
 This particular tuner is intended for our local community music center here in Nashville, the [Fiddle and Pick](https://fiddleandpick.com/).
 
+Deployed on my site, [Fine Tuned Functions](https://finetunedfunctions.com/tuner)
 ---
 
 ## Features
