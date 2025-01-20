@@ -1,0 +1,198 @@
+
+:root {
+  --semi-circle-radius: 275px;
+}
+
+.tuner-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+}
+
+.tuner-container {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+  height: 100vh;
+  justify-content: center;
+  padding: 20px;
+  text-align: center;
+  min-height: calc(100vh - 1px);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+  transform: scale(.8);
+}
+
+.semi-circle-container {
+  position: relative;
+  width: calc(var(--semi-circle-radius) * 2);
+  height: calc(var(--semi-circle-radius) * 1.05);
+  margin: 20px auto;
+  border-top-left-radius: var(--semi-circle-radius);
+  border-top-right-radius: var(--semi-circle-radius);
+  background: linear-gradient(to bottom, #001f3f, #000000);
+  overflow: visible;
+  border-top: 2px solid #ccc;
+}
+
+.semi-circle-note {
+  position: absolute;
+  font-size: 0.9rem;
+  font-weight: normal;
+  color: darkgrey;
+  transform: translate(-50%, -50%);
+  transition: color 0.3s ease, font-size 0.2s ease;
+}
+
+.semi-circle-note.active {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: yellow;
+}
+
+.start-listening {
+  margin: 20px;
+  padding: 10px 15px;
+  font-size: 1.5rem;
+  background: #2196F3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.feedback-text {
+  color: grey;
+  font-weight: normal;
+  font-size: 1.5rem;
+  padding: 10px;
+  margin: 10px auto;
+  background: linear-gradient(to bottom, #001f3f, #000000);
+  border-radius: 8px;
+  transition: color 0.3s ease;
+  text-align: center;
+}
+
+/* Tone Buttons */
+.tone-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.tone-buttons button {
+  padding: 8px 12px;
+  font-size: 14px;
+  background: #444;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.tone-buttons button:hover {
+  transform: scale(1.1);
+  background: #222;
+}
+
+/* Detected Frequency */
+.detected-frequency {
+  color: darkgrey;
+  font-size: 1.2rem;
+  margin-top: 10px;
+}
+
+/* Horizontal Notes Container */
+.horizontal-notes {
+  position: relative;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 10px 0;
+  background: linear-gradient(to bottom, #001f3f, #000000);
+  border-radius: 8px;
+}
+
+/* Horizontal Notes */
+.horizontal-note {
+  font-size: 0.8rem;
+  font-weight: normal;
+  color: darkgrey;
+  padding: 5px;
+  transition: color 0.3s ease, font-size 0.2s ease;
+}
+
+.horizontal-note.active {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: yellow;
+}
+
+.start-listening:hover {
+  background-color: #005fa3;
+}
+
+.start-listening:active {
+  background-color: #00497d;
+}
+
+.open-notes-buttons {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.open-notes-buttons button {
+  padding: 10px 15px;
+  font-size: 1.5rem;
+  color: white;
+  background-color: #444;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.open-notes-buttons button:hover {
+  background-color: #666;
+  transform: scale(1.05);
+}
+
+.open-notes-buttons button:active {
+  background-color: #333;
+  transform: scale(0.95);
+}
+
+.center-tone {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: yellow;
+}
+
+@media screen and (max-width: 768px) {
+.semi-circle-note {
+    font-size: 12px;
+  }
+}
+@media screen and (max-width: 400px) {
+.semi-circle-note {
+    font-size: 8px;
+  }
+}

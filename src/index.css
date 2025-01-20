@@ -1,4 +1,8 @@
 
+html,
+body {
+  overflow-x: hidden;
+}
 
 body {
   background-size: 400% 400%;
@@ -6,7 +10,6 @@ body {
   height: 100vh;
   margin: 0;
   font-family: "Arial", sans-serif;
-  overflow: hidden;
   position: relative;
 }
 

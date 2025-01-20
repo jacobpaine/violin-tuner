@@ -3,6 +3,7 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+  overflow-y: auto;
 }
 
 
@@ -33,12 +34,6 @@
   background-color: #1c1c1c;
 }
 
-.feedback-text {
-  font-size: 1.8rem;
-  font-weight: bold;
-  margin-top: 20px;
-  transition: color 0.3s ease, transform 0.3s ease;
-}
 
 .feedback-text.in-tune {
   color: #00c853;

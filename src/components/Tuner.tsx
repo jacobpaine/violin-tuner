@@ -1,5 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useAudioAnalyzer } from "../hooks/useAudioAnalyzer";
+import {
+  chromaticScale,
+  findClosestNote,
+  calculatePitchDifference,
+  isInTune,
+} from "../utils/noteUtils";
+import "../styles/Tuner.css";
 
 const Tuner: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
@@ -10,6 +17,34 @@ const Tuner: React.FC = () => {
   const oscillators = useRef<
     Map<string, { oscillator: OscillatorNode; audioContext: AudioContext }>
   >(new Map());
+  const [currentTone, setCurrentTone] = useState<string | null>(null);
+
+  const calculateRadius = (width: number) => {
+    return width / 2.8;
+  };
+
+  const [radius, setRadius] = useState(() =>
+    calculateRadius(window.innerWidth)
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newRadius = calculateRadius(window.innerWidth);
+      setRadius(newRadius);
+      document.documentElement.style.setProperty(
+        "--semi-circle-radius",
+        `${newRadius}px`
+      );
+    };
+
+    document.documentElement.style.setProperty(
+      "--semi-circle-radius",
+      `${radius}px`
+    );
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [radius]);
 
   useEffect(() => {
     if (frequency === null) {
@@ -26,77 +61,18 @@ const Tuner: React.FC = () => {
     };
   }, [frequency]);
 
+  useEffect(() => {
+    if (debouncedFrequency) {
+      const note = findClosestNote(debouncedFrequency);
+      setCurrentTone(note);
+    } else {
+      setCurrentTone(null);
+    }
+  }, [debouncedFrequency]);
+
   const toggleListening = () => {
     setIsListening((prev) => !prev);
   };
-
-  const chromaticScale = [
-    "G3",
-    "G#3",
-    "A3",
-    "A#3",
-    "B3",
-    "C4",
-    "C#4",
-    "D4",
-    "D#4",
-    "E4",
-    "F4",
-    "F#4",
-    "G4",
-    "G#4",
-    "A4",
-    "A#4",
-    "B4",
-    "C5",
-    "C#5",
-    "D5",
-    "D#5",
-    "E5",
-    "F5",
-    "F#5",
-    "G5",
-    "G#5",
-    "A5",
-    "A#5",
-    "B5",
-    "C6",
-    "C#6",
-    "D6",
-    "D#6",
-    "E6",
-    "F6",
-    "F#6",
-    "G6",
-    "G#6",
-    "A6",
-    "A#6",
-    "B6",
-    "C7",
-    "C#7",
-    "D7",
-    "D#7",
-    "E7",
-    "F7",
-    "F#7",
-    "G7",
-  ];
-
-  const findClosestNote = useCallback(
-    (frequency: number) => {
-      const A4 = 440;
-      const noteIndex = Math.round(
-        12 * Math.log2(frequency / A4) + chromaticScale.indexOf("A4")
-      );
-
-      if (noteIndex < 0 || noteIndex >= chromaticScale.length) {
-        return null;
-      }
-
-      return chromaticScale[noteIndex];
-    },
-    [chromaticScale]
-  );
 
   const closestNote = debouncedFrequency
     ? findClosestNote(debouncedFrequency)
@@ -108,6 +84,7 @@ const Tuner: React.FC = () => {
       current.oscillator.stop();
       current.audioContext.close();
       oscillators.current.delete(note);
+      setCurrentTone(null);
     } else {
       const audioContext = new window.AudioContext();
       const oscillator = audioContext.createOscillator();
@@ -123,52 +100,28 @@ const Tuner: React.FC = () => {
       oscillator.start();
 
       oscillators.current.set(note, { oscillator, audioContext });
+      setCurrentTone(note);
     }
   };
 
-  const renderInTuneFeedback = () => {
-    const calculatePitchDifference = (
-      frequency: number,
-      note: string | null
-    ): number | null => {
-      if (!note) return null;
-      const noteIndex = chromaticScale.indexOf(note);
-      const baseFrequency =
-        440 * Math.pow(2, (noteIndex - chromaticScale.indexOf("A4")) / 12);
-      return 1200 * Math.log2(frequency / baseFrequency); // Difference in cents
-    };
+  const getFeedbackColor = (pitchDifference: number | null) => {
+    if (pitchDifference === null) return "#BDBDBD";
+    if (isInTune(pitchDifference)) return "#4CAF50";
+    return pitchDifference > 0 ? "#F44336" : "#2196F3";
+  };
 
+  const renderInTuneFeedback = () => {
     const pitchDifference = debouncedFrequency
       ? calculatePitchDifference(debouncedFrequency, closestNote)
       : null;
-    const tolerance = 0.5; // In percentage or cents
 
-    const isInTune = (pitchDifference: number | null) => {
-      return pitchDifference !== null && Math.abs(pitchDifference) <= tolerance;
-    };
-
-    const getFeedbackColor = (pitchDifference: number | null) => {
-      if (pitchDifference === null) return "grey"; // No frequency detected
-      if (isInTune(pitchDifference)) return "green";
-      return pitchDifference > 0 ? "red" : "blue"; // Sharp = red, Flat = blue
-    };
-    const pitchDiff = debouncedFrequency
-      ? calculatePitchDifference(debouncedFrequency, closestNote)
-      : null;
-    const feedbackColor = getFeedbackColor(pitchDiff);
+    const feedbackColor = getFeedbackColor(pitchDifference);
 
     return (
-      <div
-        className="feedback-text"
-        style={{
-          color: feedbackColor,
-          fontWeight: isInTune(pitchDiff) ? "bold" : "normal",
-          background: "linear-gradient(to bottom, #001f3f, #000000)",
-        }}
-      >
+      <div className="feedback-text" style={{ color: feedbackColor }}>
         {pitchDifference === null
           ? "No Frequency Detected"
-          : isInTune(pitchDiff)
+          : isInTune(pitchDifference)
           ? "In Tune"
           : pitchDifference > 0
           ? `Sharp by ${pitchDifference.toFixed(2)} cents`
@@ -177,8 +130,36 @@ const Tuner: React.FC = () => {
     );
   };
 
+  const isActiveNote = (note: string) => {
+    return debouncedFrequency
+      ? chromaticScale.indexOf(note) ===
+          Math.round(12 * Math.log2(debouncedFrequency / 440)) +
+            chromaticScale.indexOf("A4")
+      : false;
+  };
+
+  const renderSemiCircle = (semiCircleNotes: string[]) => {
+    return semiCircleNotes.map((note: string, index: number) => {
+      const angle = (index / (semiCircleNotes.length - 1)) * Math.PI;
+      const x = radius + radius * 0.92 * Math.cos(angle);
+      const y = radius - radius * 0.91 * Math.sin(angle);
+
+      return (
+        <div
+          key={note}
+          className={`semi-circle-note ${isActiveNote(note) ? "active" : ""}`}
+          style={{
+            left: `${x}px`,
+            top: `${y}px`,
+          }}
+        >
+          {note}
+        </div>
+      );
+    });
+  };
+
   const renderNotesSemiCircle = () => {
-    const radius = 275; // Adjusted for smaller screens
     const semiCircleNotes = chromaticScale
       .slice(0, chromaticScale.indexOf("D6") + 1)
       .reverse();
@@ -188,71 +169,20 @@ const Tuner: React.FC = () => {
 
     return (
       <div style={{ position: "relative", width: "100%" }}>
-        <div
-          style={{
-            position: "relative",
-            width: `${radius * 2}px`,
-            height: `${radius * 1.05}px`,
-            margin: "20px auto",
-            borderTopLeftRadius: `${radius}px`,
-            borderTopRightRadius: `${radius}px`,
-            background: "linear-gradient(to bottom, #001f3f, #000000)",
-            overflow: "visible",
-            borderTop: "2px solid #ccc",
-          }}
-        >
-          {semiCircleNotes.map((note, index) => {
-            const angle = (index / (semiCircleNotes.length - 1)) * Math.PI;
-            const x = radius + radius * 0.92 * Math.cos(angle);
-            const y = radius - radius * 0.91 * Math.sin(angle);
-
-            const isActive = closestNote === note;
-
-            return (
-              <div
-                key={note}
-                style={{
-                  position: "absolute",
-                  left: `${x}px`,
-                  top: `${y}px`,
-                  fontSize: isActive ? "1.4rem" : "0.9rem",
-                  fontWeight: isActive ? "bold" : "normal",
-                  color: isActive ? "yellow" : "darkgrey",
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                {note}
-              </div>
-            );
-          })}
+        <div className="semi-circle-container">
+          <div className="center-tone">{currentTone || "—"}</div>
+          {renderSemiCircle(semiCircleNotes)}
         </div>
 
         {/* Horizontal Notes */}
-        <div
-          style={{
-            position: "relative",
-            marginTop: "10px",
-            display: "flex",
-            justifyContent: "center",
-            flexWrap: "wrap",
-            gap: "5px",
-            padding: "10px 0",
-            background: "linear-gradient(to bottom, #001f3f, #000000)",
-            borderRadius: "8px",
-          }}
-        >
+        <div className="horizontal-notes">
           {horizontalNotes.map((note) => {
             const isActive = closestNote === note;
 
             return (
               <div
                 key={note}
-                style={{
-                  fontSize: isActive ? "1.2rem" : "0.8rem",
-                  fontWeight: isActive ? "bold" : "normal",
-                  color: isActive ? "yellow" : "darkgrey",
-                  padding: "5px",
-                }}
+                className={`horizontal-note ${isActive ? "active" : ""}`}
               >
                 {note}
               </div>
@@ -264,44 +194,26 @@ const Tuner: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        textAlign: "center",
-        fontFamily: "Arial, sans-serif",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
-        height: "100vh",
-        overflowY: "auto",
-      }}
-    >
-      <button onClick={toggleListening} className="start-listening">
-        {isListening ? "Stop Listening" : "Start Listening"}
-      </button>
+    <div className="tuner-wrapper">
+      <div className="tuner-container">
+        <button onClick={toggleListening} className="start-listening">
+          {isListening ? "Stop Listening" : "Start Listening"}
+        </button>
 
-      {renderNotesSemiCircle()}
-      {renderInTuneFeedback()}
+        {renderNotesSemiCircle()}
+        {renderInTuneFeedback()}
 
-      <div
-        style={{
-          marginTop: "20px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          flexWrap: "wrap",
-        }}
-      >
-        <button onClick={() => toggleTone(196, "G3")}>G</button>
-        <button onClick={() => toggleTone(293.66, "D4")}>D</button>
-        <button onClick={() => toggleTone(440, "A4")}>A</button>
-        <button onClick={() => toggleTone(659.25, "E5")}>E</button>
+        <div className="open-notes-buttons">
+          <button onClick={() => toggleTone(196, "G3")}>G</button>
+          <button onClick={() => toggleTone(293.66, "D4")}>D</button>
+          <button onClick={() => toggleTone(440, "A4")}>A</button>
+          <button onClick={() => toggleTone(659.25, "E5")}>E</button>
+        </div>
+
+        <h3 className="detected-frequency">
+          Detected Frequency: {debouncedFrequency?.toFixed(2) || "—"} Hz
+        </h3>
       </div>
-
-      <h3 style={{ color: "darkgrey" }}>
-        Detected Frequency: {debouncedFrequency?.toFixed(2) || "—"} Hz
-      </h3>
     </div>
   );
 };
