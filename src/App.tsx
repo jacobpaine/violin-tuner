@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Home from "./components/Home";
 import Tuner from "./components/Tuner";
+import TimerHome from "./components/TimerHome";
 
 const App: React.FC = () => {
   return (
@@ -14,6 +15,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/tuner" element={<Tuner />} />
+        <Route path="/timer" element={<TimerHome />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

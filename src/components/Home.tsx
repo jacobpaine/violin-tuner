@@ -34,6 +34,11 @@ const Home: React.FC = () => {
           link="/tuner"
         />
         <ProjectBox
+          title="Pomodoro Timer"
+          description="Simple Pomodoro timers to help you focus."
+          link="/timer"
+        />
+        <ProjectBox
           title="Future Project"
           description="Stay tuned for more exciting tools!"
           link="#"
