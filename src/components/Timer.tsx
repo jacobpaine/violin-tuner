@@ -96,6 +96,38 @@ const Timer: React.FC<{
   }, [storageKey]);
 
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const saved = localStorage.getItem(storageKey);
+        if (!saved) return;
+
+        try {
+          const parsed = JSON.parse(saved);
+          const lastUpdated = parsed.lastUpdated;
+          const secondsPassed = Math.floor((Date.now() - lastUpdated) / 1000);
+          const newTime = durations[mode] - elapsedTime[mode] - secondsPassed;
+
+          if (newTime <= 0) {
+            handleSessionEnd();
+          } else {
+            setSecondsLeft(newTime);
+            setElapsedTime((prev) => ({
+              ...prev,
+              [mode]: prev[mode] + secondsPassed,
+            }));
+          }
+        } catch (err) {
+          console.warn("Error restoring timer on resume", err);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [storageKey, durations, mode, elapsedTime]);
+
+  useEffect(() => {
     sessionCompletedRef.current = false;
   }, [mode, durations[mode]]);
 
