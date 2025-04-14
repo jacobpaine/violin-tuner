@@ -70,12 +70,9 @@ function TimerHome() {
 
   useEffect(() => {
     const saved = localStorage.getItem("goals");
-    console.log("saved goals", saved);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        console.log("parsed goals", parsed);
-        console.log("Array.isArray(parsed)", Array.isArray(parsed));
         if (Array.isArray(parsed)) {
           setGoals(parsed);
         }
@@ -86,12 +83,10 @@ function TimerHome() {
   }, []);
 
   useEffect(() => {
-    console.log("goals change, save", goals);
     localStorage.setItem("goals", JSON.stringify(goals));
   }, [goals]);
 
   const addTimer = (title?: string) => {
-    console.log("title", title);
     const newTitle = title?.trim() || `New Timer`;
     if (timerKeys.includes(newTitle)) return;
 
