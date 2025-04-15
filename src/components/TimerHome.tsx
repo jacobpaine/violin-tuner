@@ -231,7 +231,7 @@ function TimerHome() {
   };
 
   return (
-    <div>
+    <div style={{ height: "100%" }}>
       <div className="app">
         <div className="layout">
           <div className="panels">
