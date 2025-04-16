@@ -1,5 +1,30 @@
 import { Tone } from "../types/timerTypes";
 
+export type Mode = "focus" | "shortBreak";
+
+export const getElapsedTime = (startedAt: number | null): number =>
+  startedAt ? Math.floor((Date.now() - startedAt) / 1000) : 0;
+
+export const getTotalElapsed = (
+  elapsed: Record<Mode, number>,
+  startedAt: number | null,
+  mode: Mode
+): number => elapsed[mode] + getElapsedTime(startedAt);
+
+export const getRemainingTime = (
+  durations: Record<Mode, number>,
+  elapsed: Record<Mode, number>,
+  startedAt: number | null,
+  mode: Mode
+): number => Math.max(durations[mode] - getTotalElapsed(elapsed, startedAt, mode), 0);
+
+export const hasSessionEnded = (
+  durations: Record<Mode, number>,
+  elapsed: Record<Mode, number>,
+  startedAt: number | null,
+  mode: Mode
+): boolean => getRemainingTime(durations, elapsed, startedAt, mode) <= 0;
+
 
 export const formatDuration = (seconds: number) => {
   const h = Math.floor(seconds / 3600);
@@ -9,6 +34,18 @@ export const formatDuration = (seconds: number) => {
     `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s ? `${s}s` : ""}`.trim() || "0s"
   );
 };
+
+  export const formatTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600)
+      .toString()
+      .padStart(2, "0");
+    const m = Math.floor((seconds % 3600) / 60)
+      .toString()
+      .padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${h > "00" ? `${h}h ` : ""}${m}m ${s}s`;
+  };
+
 
 export const parseDuration = (input: string): number => {
   const cleaned = input.trim().toLowerCase();
@@ -148,3 +185,9 @@ export const importDataFromJSON = (callback: (data: any) => void) => {
 
   input.click();
 };
+
+export const sessionEndMelody = [
+  { frequency: 784, duration: 0.2 },
+  { frequency: 659, duration: 0.2 },
+  { frequency: 523, duration: 0.3 },
+];

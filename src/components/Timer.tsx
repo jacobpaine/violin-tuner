@@ -1,225 +1,65 @@
-import React, { useState, useEffect, useRef } from "react";
-import { parseDuration, playMelody } from "../utils/timerUtils";
+import React, { useEffect, useState } from "react";
+import {
+  formatDuration,
+  parseDuration,
+  playMelody,
+  sessionEndMelody,
+} from "../utils/timerUtils";
+import { useTimerContext } from "../context/TimerContext";
 import { Mode } from "../types/timerTypes";
-
-const sessionEndMelody = [
-  { frequency: 784, duration: 0.2 },
-  { frequency: 659, duration: 0.2 },
-  { frequency: 523, duration: 0.3 },
-];
-
-const formatDuration = (seconds: number) => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  return (
-    `${h ? `${h}h ` : ""}${m ? `${m}m ` : ""}${s ? `${s}s` : ""}`.trim() || "0s"
-  );
-};
 
 const Timer: React.FC<{
   storageKey: string;
   onRemove?: () => void;
-  onSessionComplete?: (title: string, mode: Mode) => void;
-  onTitleChange?: (oldTitle: string, newTitle: string) => void;
-  onTickUpdate?: (secondsSpent: number, title: string, mode: Mode) => void;
-}> = ({
-  storageKey,
-  onRemove,
-  onSessionComplete,
-  onTitleChange,
-  onTickUpdate,
-}) => {
+}> = ({ storageKey, onRemove }) => {
+  const { timers, updateTimer } = useTimerContext();
+  const timer = timers[storageKey];
+
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [editingTitle, setEditingTitle] = useState<string | null>(null);
-  const [mode, setMode] = useState<Mode>("focus");
-  const [isRunning, setIsRunning] = useState(false);
-  const [durations, setDurations] = useState({ focus: 1500, shortBreak: 300 });
-  const [secondsLeft, setSecondsLeft] = useState(1500);
-  const [completedCounts, setCompletedCounts] = useState({
-    focus: 0,
-    shortBreak: 0,
-  });
-  const [elapsedTime, setElapsedTime] = useState({ focus: 0, shortBreak: 0 });
   const [isEditingTime, setIsEditingTime] = useState(false);
-  const [editableTimeInput, setEditableTimeInput] = useState("25m");
-  const intervalRef = useRef<number | null>(null);
-  const wasRunningBeforeEdit = useRef(false);
-  const hasInitializedRef = useRef(false);
-  const sessionCompletedRef = useRef(false);
+  const [editingTitle, setEditingTitle] = useState<string | null>(null);
+  const [editableTimeInput, setEditableTimeInput] = useState("30m");
 
-  useEffect(() => {
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
-
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return;
-
-    try {
-      const parsed = JSON.parse(saved);
-      const {
-        durations = { focus: 1500, shortBreak: 300 },
-        mode = "focus",
-        isRunning = false,
-        completedCounts = { focus: 0, shortBreak: 0 },
-        elapsedTime = { focus: 0, shortBreak: 0 },
-        lastUpdated,
-      } = parsed;
-
-      setDurations(durations);
-      setMode(mode);
-      setCompletedCounts(completedCounts);
-      setElapsedTime(elapsedTime);
-
-      let adjustedSeconds = durations[mode] - elapsedTime[mode];
-
-      if (isRunning && lastUpdated) {
-        const secondsPassed = Math.floor((Date.now() - lastUpdated) / 1000);
-        setElapsedTime((prev: any) => ({
-          ...prev,
-          [mode]: prev[mode] + secondsPassed,
-        }));
-        adjustedSeconds = Math.max(adjustedSeconds - secondsPassed, 0);
-        if (adjustedSeconds === 0) {
-          setIsRunning(false);
-        } else {
-          setIsRunning(true);
-        }
-      } else {
-        setIsRunning(false);
-      }
-
-      setSecondsLeft(adjustedSeconds);
-    } catch {
-      console.warn("Invalid saved timer data for", storageKey);
-    }
-  }, [storageKey]);
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        const saved = localStorage.getItem(storageKey);
-        if (!saved) return;
-
-        try {
-          const parsed = JSON.parse(saved);
-          const lastUpdated = parsed.lastUpdated;
-          const secondsPassed = Math.floor((Date.now() - lastUpdated) / 1000);
-          const newTime = durations[mode] - elapsedTime[mode] - secondsPassed;
-
-          if (newTime <= 0) {
-            handleSessionEnd();
-          } else {
-            setSecondsLeft(newTime);
-            setElapsedTime((prev) => ({
-              ...prev,
-              [mode]: prev[mode] + secondsPassed,
-            }));
-          }
-        } catch (err) {
-          console.warn("Error restoring timer on resume", err);
-        }
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () =>
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [storageKey, durations, mode, elapsedTime]);
-
-  useEffect(() => {
-    sessionCompletedRef.current = false;
-  }, [mode, durations[mode]]);
-
-  useEffect(() => {
-    if (!isRunning || sessionCompletedRef.current || secondsLeft <= 0) return;
-
-    // Clear any previous interval
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-    }
-
-    intervalRef.current = window.setInterval(() => {
-      setSecondsLeft((prev) => {
-        const newTime = prev - 1;
-
-        if (newTime <= 0) {
-          if (!sessionCompletedRef.current) {
-            handleSessionEnd();
-          }
-          return 0;
-        }
-        if (!sessionCompletedRef.current) {
-          onTickUpdate?.(1, storageKey, mode);
-        }
-        setElapsedTime((prevElapsed) => ({
-          ...prevElapsed,
-          [mode]: prevElapsed[mode] + 1,
-        }));
-
-        return newTime;
-      });
-    }, 1000);
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-  }, [isRunning, mode, storageKey]);
-
-  useEffect(() => {
-    const data = {
-      title: storageKey,
-      durations,
-      mode,
-      secondsLeft,
-      isRunning,
-      completedCounts,
-      elapsedTime,
-      lastUpdated: Date.now(),
-    };
-    localStorage.setItem(storageKey, JSON.stringify(data));
-  }, [
-    durations,
-    mode,
-    secondsLeft,
-    isRunning,
-    completedCounts,
-    elapsedTime,
-    storageKey,
-  ]);
-
-  const handleSessionEnd = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-
-    if (sessionCompletedRef.current) return;
-    sessionCompletedRef.current = true;
-
-    setIsRunning(false);
-    setCompletedCounts((prev) => ({ ...prev, [mode]: prev[mode] + 1 }));
-
-    if (mode === "focus") {
-      setMode("shortBreak");
-      playMelody(sessionEndMelody);
+  const toggleStart = () => {
+    if (!timer.isRunning) {
+      updateTimer(storageKey, { isRunning: true, startedAt: Date.now() });
     } else {
-      setMode("focus");
+      updateTimer(storageKey, {
+        isRunning: false,
+        startedAt: null,
+        elapsed: {
+          ...timer.elapsed,
+          [timer.mode]: timer.elapsed[timer.mode],
+        },
+        total: {
+          ...timer.total,
+          [timer.mode]: timer.total[timer.mode],
+        },
+      });
     }
-
-    onSessionComplete?.(storageKey, mode);
   };
 
   const handleTitleSubmit = () => {
-    const newTitle = editingTitle?.trim() || storageKey;
-    if (newTitle !== storageKey) {
-      onTitleChange?.(storageKey, newTitle);
+    const newTitle = editingTitle?.trim();
+    if (!newTitle || newTitle === storageKey) {
+      setIsEditingTitle(false);
+      setEditingTitle(null);
+      return;
     }
-    setIsEditingTitle(false);
-    setEditingTitle(null);
+
+    let finalTitle = newTitle;
+    let counter = 1;
+    while (timers[finalTitle]) {
+      finalTitle = `${newTitle} (${counter++})`;
+    }
+
+    const timerData = { ...timers[storageKey] };
+    localStorage.setItem(finalTitle, JSON.stringify(timerData));
+    localStorage.removeItem(storageKey);
+
+    delete timers[storageKey];
+    updateTimer(finalTitle, timerData);
+    if (onRemove) onRemove();
   };
 
   const formatTime = (seconds: number) => {
@@ -232,6 +72,65 @@ const Timer: React.FC<{
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${h > "00" ? `${h}h ` : ""}${m}m ${s}s`;
   };
+
+  useEffect(() => {
+    if (!timer.isRunning || !timer.startedAt) return;
+
+    const tick = () => {
+      const now = Date.now();
+      const currentElapsed = Math.floor((now - timer.startedAt!) / 1000);
+      const elapsedTime = timer.elapsed[timer.mode] + currentElapsed;
+      const remaining = timer.durations[timer.mode] - elapsedTime;
+      const totalTime = timer.total[timer.mode] + currentElapsed;
+
+      if (remaining <= 0) {
+        const nextMode: Mode = timer.mode === "focus" ? "shortBreak" : "focus";
+        const updatedCounts = {
+          ...timer.completedCounts,
+          [timer.mode]: timer.completedCounts[timer.mode] + 1,
+        };
+        if (timer.mode === "focus") playMelody(sessionEndMelody);
+        updateTimer(storageKey, {
+          mode: nextMode,
+          isRunning: false,
+          secondsLeft: timer.durations[nextMode] - timer.total[nextMode],
+          completedCounts: updatedCounts,
+          total: {
+            ...timer.total,
+            [timer.mode]: totalTime,
+          },
+          elapsed: {
+            ...timer.elapsed,
+            [timer.mode]: 0,
+          },
+          startedAt: null,
+        });
+        return;
+      }
+
+      updateTimer(storageKey, {
+        secondsLeft: remaining,
+        total: {
+          ...timer.total,
+          [timer.mode]: totalTime,
+        },
+        elapsed: {
+          ...timer.elapsed,
+          [timer.mode]: elapsedTime,
+        },
+      });
+    };
+
+    const interval = setInterval(tick, 1000);
+    tick();
+    return () => clearInterval(interval);
+  }, [
+    timer.isRunning,
+    timer.startedAt,
+    timer.mode,
+    timer.durations,
+    storageKey,
+  ]);
 
   return (
     <div className="timer">
@@ -254,21 +153,21 @@ const Timer: React.FC<{
       )}
 
       <div className="button-row">
-        <button
-          className="button button-tertiary"
-          onClick={() => setIsRunning((r) => !r)}
-        >
-          {isRunning ? "Pause" : "Start"}
+        <button className="button button-tertiary" onClick={toggleStart}>
+          {timer.isRunning ? "Pause" : "Start"}
         </button>
         <button
           className="button button-tertiary"
           onClick={() => {
-            const newMode = mode === "focus" ? "shortBreak" : "focus";
-            setMode(newMode);
-            setSecondsLeft(durations[newMode] - elapsedTime[newMode]);
+            const newMode: Mode =
+              timer.mode === "focus" ? "shortBreak" : "focus";
+            updateTimer(storageKey, {
+              mode: newMode,
+              secondsLeft: timer.durations[newMode] - timer.elapsed[newMode],
+            });
           }}
         >
-          {mode === "focus" ? "Focus" : "Break"}
+          {timer.mode === "focus" ? "Focus" : "Break"}
         </button>
         <button
           onClick={onRemove}
@@ -287,11 +186,15 @@ const Timer: React.FC<{
             onBlur={() => {
               const newSeconds = parseDuration(editableTimeInput);
               if (newSeconds > 0) {
-                setSecondsLeft(newSeconds);
-                setDurations((prev) => ({ ...prev, [mode]: newSeconds }));
+                updateTimer(storageKey, {
+                  secondsLeft: newSeconds,
+                  durations: {
+                    ...timer.durations,
+                    [timer.mode]: newSeconds,
+                  },
+                });
               }
               setIsEditingTime(false);
-              if (wasRunningBeforeEdit.current) setIsRunning(true);
             }}
             onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
             autoFocus
@@ -299,18 +202,17 @@ const Timer: React.FC<{
         ) : (
           <span
             onClick={() => {
-              wasRunningBeforeEdit.current = isRunning;
-              setIsRunning(false);
-              setEditableTimeInput(formatDuration(secondsLeft));
+              setEditableTimeInput(formatDuration(timer.secondsLeft));
               setIsEditingTime(true);
             }}
             style={{ cursor: "pointer" }}
           >
-            {formatTime(secondsLeft)}
+            {formatTime(timer.secondsLeft)}
           </span>
         )}
       </div>
     </div>
   );
 };
+
 export default Timer;
