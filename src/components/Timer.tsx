@@ -27,9 +27,9 @@ const Timer: React.FC<{
       updateTimer(storageKey, {
         isRunning: false,
         startedAt: null,
-        elapsed: {
-          ...timer.elapsed,
-          [timer.mode]: timer.elapsed[timer.mode],
+        elapsedTime: {
+          ...timer.elapsedTime,
+          [timer.mode]: timer.elapsedTime[timer.mode],
         },
         total: {
           ...timer.total,
@@ -79,7 +79,7 @@ const Timer: React.FC<{
     const tick = () => {
       const now = Date.now();
       const currentElapsed = Math.floor((now - timer.startedAt!) / 1000);
-      const elapsedTime = timer.elapsed[timer.mode] + currentElapsed;
+      const elapsedTime = timer.elapsedTime[timer.mode] + currentElapsed;
       const remaining = timer.durations[timer.mode] - elapsedTime;
       const totalTime = timer.total[timer.mode] + currentElapsed;
 
@@ -99,8 +99,8 @@ const Timer: React.FC<{
             ...timer.total,
             [timer.mode]: totalTime,
           },
-          elapsed: {
-            ...timer.elapsed,
+          elapsedTime: {
+            ...timer.elapsedTime,
             [timer.mode]: 0,
           },
           startedAt: null,
@@ -114,8 +114,8 @@ const Timer: React.FC<{
           ...timer.total,
           [timer.mode]: totalTime,
         },
-        elapsed: {
-          ...timer.elapsed,
+        elapsedTime: {
+          ...timer.elapsedTime,
           [timer.mode]: elapsedTime,
         },
       });
@@ -162,8 +162,10 @@ const Timer: React.FC<{
             const newMode: Mode =
               timer.mode === "focus" ? "shortBreak" : "focus";
             updateTimer(storageKey, {
+              isRunning: false,
               mode: newMode,
-              secondsLeft: timer.durations[newMode] - timer.elapsed[newMode],
+              secondsLeft:
+                timer.durations[newMode] - timer.elapsedTime[newMode],
             });
           }}
         >

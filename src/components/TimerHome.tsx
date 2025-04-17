@@ -77,7 +77,7 @@ function TimerHome() {
                   .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
                   .map((goal) => {
                     const isEditing = editingId === goal.id;
-                    const score = goal.linkedTo
+                    const score = goal?.linkedTo
                       ? timers[goal.linkedTo]?.total?.focus || 0
                       : 0;
                     const goalMet = score >= goal.hours;
@@ -163,11 +163,13 @@ function TimerHome() {
               {timerKeys.map((key) => {
                 const timer = timers[key];
                 if (!timer) return null;
+                const focus = timer?.total?.focus || 0;
+                const shortBreak = timer?.total?.shortBreak || 0;
                 return (
                   <div className="time-display" key={key}>
                     <strong>{key}</strong>:<label> 🎯 </label>{" "}
                     <EditableNumberField
-                      value={timer.total.focus}
+                      value={focus}
                       onChange={(val) =>
                         updateTimer(key, {
                           total: {
@@ -179,7 +181,7 @@ function TimerHome() {
                     />
                     <label> ☕ </label>
                     <EditableNumberField
-                      value={timer.total.shortBreak}
+                      value={shortBreak}
                       onChange={(val) =>
                         updateTimer(key, {
                           total: {

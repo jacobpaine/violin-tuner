@@ -13,7 +13,7 @@ export interface TimerData {
   durations: { focus: number; shortBreak: number };
   secondsLeft: number;
   startedAt: number | null;
-  elapsed: { focus: number; shortBreak: number };
+  elapsedTime: { focus: number; shortBreak: number };
   total: { focus: number; shortBreak: number };
   completedCounts: { focus: number; shortBreak: number };
 }
@@ -88,7 +88,7 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
         secondsLeft: 1800,
         startedAt: null,
         total: { focus: 0, shortBreak: 0 },
-        elapsed: { focus: 0, shortBreak: 0 },
+        elapsedTime: { focus: 0, shortBreak: 0 },
         completedCounts: { focus: 0, shortBreak: 0 },
         ...initial,
       },

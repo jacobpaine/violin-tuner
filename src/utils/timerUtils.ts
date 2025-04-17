@@ -151,7 +151,7 @@ export const importDataFromJSON = (callback: (data: any) => void) => {
                 parsed.secondsLeft?.[title] ??
                 parsed.durations?.[title]?.focus ??
                 1500,
-              mode: parsed.mode?.[title] || "focus",
+              mode: parsed?.mode?.[title] || "focus",
               elapsedTime: {
                 focus: parsed.scores[title]?.focus || 0,
                 shortBreak: parsed.scores[title]?.break || 0,
