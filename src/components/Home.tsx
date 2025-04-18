@@ -39,6 +39,11 @@ const Home: React.FC = () => {
           link="/timer"
         />
         <ProjectBox
+          title="Kanban Journal"
+          description="A Kanban style journal using IndexedDb."
+          link="/journal"
+        />
+        <ProjectBox
           title="Future Project"
           description="Stay tuned for more exciting tools!"
           link="#"
