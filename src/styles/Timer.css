@@ -157,10 +157,11 @@ h3 {
 }
 
 .left-panel {
-  flex: 0 0 50%;
   max-width: 50%;
   flex-direction: column;
+  flex: 0 0 50%;
 }
+
 .right-panel {
   flex: 0 0 50%;
   max-width: 50%;
@@ -374,6 +375,7 @@ select {
 }
 
 .time-display {
+  width: 100%;
   padding: 0.5rem 1rem;
   font-size: 1.25rem;
   font-weight: 700;

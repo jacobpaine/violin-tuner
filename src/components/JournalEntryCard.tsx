@@ -11,7 +11,8 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
   const [collapsed, setCollapsed] = useState(entry.collapsed ?? false);
   const [editableContent, setEditableContent] = useState(entry.content);
   const [editableDate, setEditableDate] = useState(entry.date);
-  const { deleteEntry, goals, updateEntryGoals } = useJournal();
+  const { deleteEntry, goals, updateEntryGoals, updateEntryGoalData } =
+    useJournal();
 
   const toggleGoal = (goalId: string) => {
     const current = entry.goalIds || [];
@@ -39,6 +40,7 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
           marginBottom: "0.5rem",
           justifyContent: "space-between",
           alignItems: "center",
+          color: "#fff",
         }}
       >
         {formatDisplayDate(editableDate)}
@@ -69,24 +71,60 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
             rows={5}
             style={{ width: "100%" }}
           />
-          <div style={{ marginTop: "0.5rem" }}>
+          <div style={{ color: "#fff", marginTop: "0.5rem" }}>
             <strong>Tags:</strong>
             <div
               style={{ display: "flex", flexWrap: "wrap", marginTop: "0.5rem" }}
             >
-              {goals.map((goal) => (
-                <label
-                  key={goal.id}
-                  style={{ marginRight: "0.5rem", fontSize: "0.9rem" }}
-                >
-                  <input
-                    type="checkbox"
-                    checked={entry.goalIds?.includes(goal.id) || false}
-                    onChange={() => toggleGoal(goal.id)}
-                  />
-                  {goal.name}
-                </label>
-              ))}
+              {goals.map((goal) => {
+                const goalMetrics = entry.goalData?.[goal.id] || {
+                  hours: 0,
+                  money: 0,
+                };
+
+                return (
+                  <div key={goal.id} style={{ marginBottom: "0.5rem" }}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={entry.goalIds?.includes(goal.id) || false}
+                        onChange={() => toggleGoal(goal.id)}
+                      />{" "}
+                      {goal.name}
+                    </label>
+                    {entry.goalIds?.includes(goal.id) && (
+                      <div style={{ marginLeft: "1rem" }}>
+                        <label>Hours:</label>
+                        <input
+                          type="number"
+                          value={goalMetrics.hours}
+                          onChange={(e) =>
+                            updateEntryGoalData(entry.id, goal.id, {
+                              ...goalMetrics,
+                              hours: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          placeholder="Hours"
+                          style={{ width: "60px", marginRight: "0.5rem" }}
+                        />
+                        <label>$:</label>
+                        <input
+                          type="number"
+                          value={goalMetrics.money}
+                          onChange={(e) =>
+                            updateEntryGoalData(entry.id, goal.id, {
+                              ...goalMetrics,
+                              money: parseFloat(e.target.value) || 0,
+                            })
+                          }
+                          placeholder="$"
+                          style={{ width: "60px" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

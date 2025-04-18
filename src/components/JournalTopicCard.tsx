@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { JournalTopic } from "../types/journalTypes";
 import { useJournal } from "../context/JournalContext";
+import ConfirmModal from "./ConfirmModal";
 
 interface Props {
   topic: JournalTopic;
@@ -13,6 +14,7 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(topic.title);
   const [editedFlavor, setEditedFlavor] = useState(topic.flavor);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const saveChanges = () => {
     updateTopic({ ...topic, title: editedTitle, flavor: editedFlavor });
@@ -30,25 +32,26 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
     <div
       onClick={onSelect}
       style={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        border: selected ? "2px solid #007bff" : "1px solid #ccc",
-        borderRadius: "8px",
-        padding: "12px",
-        margin: "8px",
+        border: selected ? "2px solid #007bff" : "1px solid #e0e0e0",
+        borderRadius: "12px",
+        padding: ".25rem",
+        margin: "0.5rem 0",
         cursor: "pointer",
-        background: selected ? "#e6f0ff" : "#fff",
-        transition: "background 0.2s ease",
-        position: "relative",
+        background: selected ? "#f0f7ff" : "#fff",
+        boxShadow: selected
+          ? "0 2px 8px rgba(0, 123, 255, 0.15)"
+          : "0 1px 3px rgba(0,0,0,0.05)",
+        transition: "all 0.2s ease",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
       }}
     >
       <div
         style={{
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "0.5rem",
+          flexDirection: "column",
+          opacity: selected ? 1 : 0.5,
         }}
       >
         <button
@@ -57,11 +60,11 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
             setIsEditing(true);
           }}
           style={{
-            fontSize: "0.8rem",
             background: "none",
             border: "none",
             color: "#007bff",
             cursor: "pointer",
+            fontSize: "0.85rem",
           }}
         >
           ✎
@@ -69,22 +72,36 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
         <button
           onClick={(e) => {
             e.stopPropagation();
-            deleteTopic(topic.id);
+            setShowConfirm(true);
           }}
           style={{
-            fontSize: "0.8rem",
             background: "none",
             border: "none",
             color: "#dc3545",
             cursor: "pointer",
+            fontSize: "0.85rem",
           }}
         >
           ✖
         </button>
       </div>
-
+      {showConfirm && (
+        <ConfirmModal
+          message={`Are you sure you want to delete "${topic.title}"? This will delete all entries associated with this topic.`}
+          onConfirm={() => {
+            deleteTopic(topic.id);
+            setShowConfirm(false);
+          }}
+          onCancel={() => setShowConfirm(false)}
+        />
+      )}
       {selected && isEditing ? (
-        <>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
           <input
             value={editedTitle}
             onChange={(e) => setEditedTitle(e.target.value)}
@@ -92,33 +109,47 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
             style={{
               fontWeight: "bold",
               fontSize: "1rem",
-              width: "100%",
               marginBottom: "0.25rem",
+              border: "1px solid #ccc",
+              borderRadius: "6px",
+              width: "100%",
             }}
           />
           <textarea
             value={editedFlavor}
             onChange={(e) => setEditedFlavor(e.target.value)}
             onBlur={saveChanges}
-            style={{ fontSize: "0.85rem", width: "100%" }}
-            rows={2}
+            style={{
+              fontSize: "0.85rem",
+              border: "1px solid #ccc",
+              borderRadius: "6px",
+              width: "100%",
+              resize: "none",
+            }}
+            rows={3}
           />
-        </>
+        </div>
       ) : (
         <div
           style={{
             fontSize: "1rem",
-            fontWeight: "bold",
+            fontWeight: 600,
             marginBottom: "0.25rem",
-            cursor: "pointer",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
+            textAlign: "center",
+            color: "#333",
+            lineHeight: "1.4",
           }}
         >
           <div style={{ fontWeight: "bold" }}>{topic.title}</div>
-          <div style={{ fontSize: "0.85rem", color: "#666" }}>
+          <div
+            style={{
+              fontSize: "0.85rem",
+              color: "#666",
+              textAlign: "center",
+              lineHeight: "1.3",
+              whiteSpace: "pre-wrap",
+            }}
+          >
             {topic.flavor}
           </div>
         </div>

@@ -4,13 +4,14 @@ import JournalEntryCard from "./JournalEntryCard";
 import { getToday } from "../utils/journalUtils";
 import { v4 as uuidv4 } from "uuid";
 import { JournalEntry } from "../types/journalTypes";
+import "../App.css";
 
 const JournalEntriesColumn: React.FC = () => {
   const { selectedTopicId, entries, addEntry } = useJournal();
 
   if (!selectedTopicId) {
     return (
-      <div style={{ padding: "1rem" }}>
+      <div className="column-header" style={{ padding: "1rem" }}>
         Select a topic to view journal entries.
       </div>
     );
@@ -28,7 +29,7 @@ const JournalEntriesColumn: React.FC = () => {
 
   return (
     <div style={{ padding: "1rem" }}>
-      <h3>Journal Entries</h3>
+      <h3 className={"column-header"}>Journal Entries</h3>
       <button onClick={handleNewEntry} style={{ marginBottom: "1rem" }}>
         + New Entry
       </button>

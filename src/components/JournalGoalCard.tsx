@@ -7,10 +7,22 @@ interface Props {
 }
 
 const JournalGoalCard: React.FC<Props> = ({ goal }) => {
-  const { updateGoal, deleteGoal } = useJournal();
+  const { entries, updateGoal, deleteGoal } = useJournal();
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(goal.name);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const totals = entries.reduce(
+    (acc, entry) => {
+      const g = entry.goalData?.[goal.id];
+      if (g) {
+        acc.hours += g.hours || 0;
+        acc.money += g.money || 0;
+      }
+      return acc;
+    },
+    { hours: 0, money: 0 }
+  );
 
   const saveChanges = () => {
     if (editedName.trim() !== goal.name) {
@@ -19,11 +31,12 @@ const JournalGoalCard: React.FC<Props> = ({ goal }) => {
     setIsEditing(false);
   };
 
-  useEffect(() => {
-    if (isEditing) {
-      inputRef.current?.focus();
-    }
-  }, [isEditing]);
+  const handleTargetChange = (
+    key: "hourTarget" | "moneyTarget",
+    value: number
+  ) => {
+    updateGoal({ ...goal, [key]: value });
+  };
 
   return (
     <div
@@ -39,19 +52,81 @@ const JournalGoalCard: React.FC<Props> = ({ goal }) => {
       }}
     >
       {isEditing ? (
-        <input
-          ref={inputRef}
-          value={editedName}
-          onChange={(e) => setEditedName(e.target.value)}
-          onBlur={saveChanges}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") saveChanges();
-            if (e.key === "Escape") setIsEditing(false);
-          }}
-          style={{ width: "100%" }}
-        />
+        <div>
+          <input
+            ref={inputRef}
+            value={editedName}
+            onChange={(e) => setEditedName(e.target.value)}
+            onBlur={saveChanges}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") saveChanges();
+              if (e.key === "Escape") setIsEditing(false);
+            }}
+            style={{ width: "100%" }}
+          />
+          <div style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>
+            <div>
+              Hours: {totals.hours.toFixed(1)} /{" "}
+              <input
+                type="number"
+                defaultValue={goal.hourTarget ?? 100}
+                onBlur={(e) =>
+                  handleTargetChange(
+                    "hourTarget",
+                    parseFloat(e.target.value) || 0
+                  )
+                }
+                style={{ width: "60px" }}
+              />
+            </div>
+            <div>
+              Cost: ${totals.money.toFixed(2)} /{" "}
+              <input
+                type="number"
+                defaultValue={goal.moneyTarget ?? 0}
+                onBlur={(e) =>
+                  handleTargetChange(
+                    "moneyTarget",
+                    parseFloat(e.target.value) || 0
+                  )
+                }
+                style={{ width: "60px" }}
+              />
+            </div>
+          </div>
+        </div>
       ) : (
-        <span>{goal.name}</span>
+        <div style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>
+          <strong>{goal.name}</strong>
+          <div>
+            Hours: {totals.hours.toFixed(1)} /{" "}
+            <input
+              type="number"
+              defaultValue={goal.hourTarget ?? 100}
+              onBlur={(e) =>
+                handleTargetChange(
+                  "hourTarget",
+                  parseFloat(e.target.value) || 0
+                )
+              }
+              style={{ width: "60px" }}
+            />
+          </div>
+          <div>
+            Cost: ${totals.money.toFixed(2)} /{" "}
+            <input
+              type="number"
+              defaultValue={goal.moneyTarget ?? 0}
+              onBlur={(e) =>
+                handleTargetChange(
+                  "moneyTarget",
+                  parseFloat(e.target.value) || 0
+                )
+              }
+              style={{ width: "60px" }}
+            />
+          </div>
+        </div>
       )}
 
       <button

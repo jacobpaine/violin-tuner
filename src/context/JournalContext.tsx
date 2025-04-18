@@ -27,6 +27,11 @@ interface JournalContextType {
   addGoal: (goal: JournalGoal) => void;
   updateGoal: (goal: JournalGoal) => void;
   deleteGoal: (goalId: string) => void;
+  updateEntryGoalData: (
+    entryId: string,
+    goalId: string,
+    data: { hours: number; money: number }
+  ) => void;
 }
 
 const JournalContext = createContext<JournalContextType | undefined>(undefined);
@@ -110,6 +115,31 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
     setGoals((prev) => prev.map((g) => (g.id === goal.id ? goal : g)));
   };
 
+  const updateEntryGoalData = async (
+    entryId: string,
+    goalId: string,
+    data: { hours: number; money: number }
+  ) => {
+    const updatedEntries = entries.map((entry) =>
+      entry.id === entryId
+        ? {
+            ...entry,
+            goalData: {
+              ...entry.goalData,
+              [goalId]: data,
+            },
+          }
+        : entry
+    );
+
+    const updated = updatedEntries.find((e) => e.id === entryId);
+    if (updated) {
+      await saveEntry(updated);
+    }
+
+    setEntries(updatedEntries);
+  };
+
   return (
     <JournalContext.Provider
       value={{
@@ -123,6 +153,7 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
         addEntry,
         deleteEntry,
         updateEntryGoals,
+        updateEntryGoalData,
         goals,
         addGoal,
         deleteGoal,

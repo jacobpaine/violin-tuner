@@ -5,11 +5,19 @@ export interface JournalEntry {
   content: string;
   collapsed?: boolean;
   goalIds?: string[];
+  goalData?: {
+  [goalId: string]: {
+    hours: number;
+    money: number;
+  };
+};
 }
 
 export interface JournalGoal {
   id: string;
   name: string;
+  hourTarget?: number;
+  moneyTarget?: number;
 }
 
 export interface JournalTopic {
