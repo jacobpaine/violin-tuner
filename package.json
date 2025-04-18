@@ -10,10 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "idb-keyval": "^6.2.1",
     "pitchfinder": "^2.3.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^7.1.3"
+    "react-router-dom": "^7.1.3",
+    "uuid": "^11.1.0"
   },
   "homepage": "/tuner",
   "devDependencies": {
