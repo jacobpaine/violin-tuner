@@ -11,8 +11,13 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
   const [collapsed, setCollapsed] = useState(entry.collapsed ?? false);
   const [editableContent, setEditableContent] = useState(entry.content);
   const [editableDate, setEditableDate] = useState(entry.date);
-  const { deleteEntry, goals, updateEntryGoals, updateEntryGoalData } =
-    useJournal();
+  const {
+    deleteEntry,
+    goals,
+    updateEntryGoals,
+    updateEntryGoalData,
+    updateEntryContent,
+  } = useJournal();
 
   const toggleGoal = (goalId: string) => {
     const current = entry.goalIds || [];
@@ -62,14 +67,20 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
           <input
             type="date"
             value={editableDate}
-            onChange={(e) => setEditableDate(e.target.value)}
+            onChange={(e) => {
+              setEditableDate(e.target.value);
+              updateEntryContent(entry.id, { date: e.target.value });
+            }}
             style={{ marginBottom: "0.5rem" }}
           />
           <textarea
             value={editableContent}
             onChange={(e) => setEditableContent(e.target.value)}
+            onBlur={() =>
+              updateEntryContent(entry.id, { content: editableContent })
+            }
             rows={5}
-            style={{ width: "100%" }}
+            style={{ width: "100%", marginBottom: "0.5rem" }}
           />
           <div style={{ color: "#fff", marginTop: "0.5rem" }}>
             <strong>Tags:</strong>

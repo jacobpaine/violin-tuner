@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { JournalTopic } from "../types/journalTypes";
 import { useJournal } from "../context/JournalContext";
 import ConfirmModal from "./ConfirmModal";
@@ -15,6 +15,7 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
   const [editedTitle, setEditedTitle] = useState(topic.title);
   const [editedFlavor, setEditedFlavor] = useState(topic.flavor);
   const [showConfirm, setShowConfirm] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const saveChanges = () => {
     updateTopic({ ...topic, title: editedTitle, flavor: editedFlavor });
@@ -28,8 +29,26 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
     }
   }, [selected]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isEditing &&
+        cardRef.current &&
+        !cardRef.current.contains(event.target as Node)
+      ) {
+        saveChanges();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditing, editedTitle, editedFlavor]);
+
   return (
     <div
+      ref={cardRef}
       onClick={onSelect}
       style={{
         border: selected ? "2px solid #007bff" : "1px solid #e0e0e0",

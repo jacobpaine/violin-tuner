@@ -32,6 +32,10 @@ interface JournalContextType {
     goalId: string,
     data: { hours: number; money: number }
   ) => void;
+  updateEntryContent: (
+    entryId: string,
+    updates: Partial<Pick<JournalEntry, "content" | "date">>
+  ) => void;
 }
 
 const JournalContext = createContext<JournalContextType | undefined>(undefined);
@@ -77,6 +81,22 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
   const addEntry = async (entry: JournalEntry) => {
     await saveEntry(entry);
     setEntries((prev) => [...prev, entry]);
+  };
+
+  const updateEntryContent = async (
+    entryId: string,
+    updates: Partial<Pick<JournalEntry, "content" | "date">>
+  ) => {
+    const updatedEntries = entries.map((entry) =>
+      entry.id === entryId ? { ...entry, ...updates } : entry
+    );
+
+    const updated = updatedEntries.find((e) => e.id === entryId);
+    if (updated) {
+      await saveEntry(updated);
+    }
+
+    setEntries(updatedEntries);
   };
 
   const updateEntryGoals = async (entryId: string, goalIds: string[]) => {
@@ -152,6 +172,7 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
         entries,
         addEntry,
         deleteEntry,
+        updateEntryContent,
         updateEntryGoals,
         updateEntryGoalData,
         goals,

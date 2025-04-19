@@ -11,6 +11,24 @@ const JournalGoalCard: React.FC<Props> = ({ goal }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(goal.name);
   const inputRef = useRef<HTMLInputElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isEditing &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        saveChanges();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditing, editedName]);
 
   const totals = entries.reduce(
     (acc, entry) => {
@@ -40,7 +58,12 @@ const JournalGoalCard: React.FC<Props> = ({ goal }) => {
 
   return (
     <div
-      onClick={() => setIsEditing(true)}
+      ref={cardRef}
+      onClick={(e) => {
+        if ((e.target as HTMLElement).tagName !== "INPUT") {
+          setIsEditing(true);
+        }
+      }}
       style={{
         position: "relative",
         border: "1px solid #ccc",
@@ -97,7 +120,10 @@ const JournalGoalCard: React.FC<Props> = ({ goal }) => {
         </div>
       ) : (
         <div style={{ fontSize: "0.8rem", marginTop: "0.5rem" }}>
-          <strong>{goal.name}</strong>
+          <div style={{ position: "absolute" }}>🖋️</div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <strong>{goal.name}</strong>
+          </div>
           <div>
             Hours: {totals.hours.toFixed(1)} /{" "}
             <input
