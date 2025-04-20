@@ -10,7 +10,6 @@ import {
 
 const handleSave = async () => {
   const data = await exportAllData();
-  console.log("🔍 Exported Data:", data);
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
   });
@@ -33,8 +32,6 @@ const handleLoad = async () => {
 
     const text = await file.text();
     const data: AppData = JSON.parse(text);
-    console.log("📥 Imported Data:", data); // <-- Debug here
-
     await importAllData(data);
     window.location.reload();
   };
