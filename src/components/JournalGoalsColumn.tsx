@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useJournal } from "../context/JournalContext";
 import JournalGoalCard from "./JournalGoalCard";
 import { v4 as uuidv4 } from "uuid";

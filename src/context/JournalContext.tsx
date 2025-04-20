@@ -36,6 +36,11 @@ interface JournalContextType {
     entryId: string,
     updates: Partial<Pick<JournalEntry, "content" | "date">>
   ) => void;
+  enrichEntriesWithTopicGoals: (
+    entries: JournalEntry[],
+    topicId: string,
+    goals: JournalGoal[]
+  ) => JournalEntry[];
 }
 
 const JournalContext = createContext<JournalContextType | undefined>(undefined);
@@ -55,11 +60,18 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (selectedTopicId) {
-      getEntriesByTopic(selectedTopicId).then(setEntries);
+      getEntriesByTopic(selectedTopicId).then((loadedEntries) => {
+        const enriched = enrichEntriesWithTopicGoals(
+          loadedEntries,
+          selectedTopicId,
+          goals
+        );
+        setEntries(enriched);
+      });
     } else {
       setEntries([]);
     }
-  }, [selectedTopicId]);
+  }, [selectedTopicId, goals]);
 
   const selectTopic = (id: string) => setSelectedTopicId(id);
 
@@ -108,6 +120,30 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
       await saveEntry(entry);
     }
     setEntries(updated);
+  };
+
+  const enrichEntriesWithTopicGoals = (
+    entries: JournalEntry[],
+    topicId: string,
+    goals: JournalGoal[]
+  ): JournalEntry[] => {
+    const matchingGoalIds = goals
+      .filter((goal) => goal.topicIds?.includes(topicId))
+      .map((goal) => goal.id);
+
+    return entries.map((entry) => {
+      const goalData: JournalEntry["goalData"] = {};
+
+      for (const goalId of matchingGoalIds) {
+        goalData[goalId] = entry.goalData?.[goalId] ?? { hours: 0, money: 0 };
+      }
+
+      return {
+        ...entry,
+        goalIds: matchingGoalIds,
+        goalData,
+      };
+    });
   };
 
   const updateTopic = async (updated: JournalTopic) => {
@@ -175,6 +211,7 @@ export const JournalProvider: React.FC<{ children: React.ReactNode }> = ({
         updateEntryContent,
         updateEntryGoals,
         updateEntryGoalData,
+        enrichEntriesWithTopicGoals,
         goals,
         addGoal,
         deleteGoal,

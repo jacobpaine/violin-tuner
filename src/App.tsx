@@ -10,7 +10,7 @@ import Tuner from "./components/Tuner";
 import TimerHome from "./components/TimerHome";
 import { TimerProvider } from "./context/TimerContext";
 import { JournalProvider } from "./context/JournalContext";
-import JournalLayout from "./layouts/journalLayout";
+import JournalLayout from "./layouts/JournalLayout";
 
 const App: React.FC = () => {
   return (

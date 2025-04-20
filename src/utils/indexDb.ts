@@ -1,4 +1,4 @@
-import { get, set, update, del, keys } from 'idb-keyval';
+import { get, set, del, keys } from 'idb-keyval';
 import { JournalEntry, JournalGoal } from '../types/journalTypes';
 
 export const saveTopic = async (topic: any) => {

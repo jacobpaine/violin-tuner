@@ -151,10 +151,11 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
       ) : (
         <div
           style={{
+            display: "flex",
+            flexDirection: "column",
             fontSize: "1rem",
             fontWeight: 600,
             marginBottom: "0.25rem",
-            textAlign: "center",
             color: "#333",
             lineHeight: "1.4",
           }}
@@ -164,9 +165,7 @@ const JournalTopicCard: React.FC<Props> = ({ topic, selected, onSelect }) => {
             style={{
               fontSize: "0.85rem",
               color: "#666",
-              textAlign: "center",
               lineHeight: "1.3",
-              whiteSpace: "pre-wrap",
             }}
           >
             {topic.flavor}

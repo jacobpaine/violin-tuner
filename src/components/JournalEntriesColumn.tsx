@@ -20,9 +20,11 @@ const JournalEntriesColumn: React.FC = () => {
   const handleNewEntry = () => {
     const newEntry: JournalEntry = {
       id: uuidv4(),
-      topicId: selectedTopicId,
+      topicId: selectedTopicId!,
       date: getToday(),
       content: "",
+      goalIds: [],
+      goalData: {},
     };
     addEntry(newEntry);
   };
@@ -38,7 +40,7 @@ const JournalEntriesColumn: React.FC = () => {
         .sort((a: { date: any }, b: { date: string }) =>
           b.date.localeCompare(a.date)
         )
-        .map((entry: { id: any }) => (
+        .map((entry) => (
           <JournalEntryCard key={entry.id} entry={entry} />
         ))}
     </div>

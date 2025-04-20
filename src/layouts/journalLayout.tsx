@@ -5,27 +5,14 @@ import JournalGoalsColumn from "../components/JournalGoalsColumn";
 
 const JournalLayout: React.FC = () => {
   return (
-    <div style={{ display: "flex", height: "100%", width: "100%" }}>
-      {/* Column 1: Topics */}
-      <div
-        style={{ flex: "1", borderRight: "1px solid #ccc", overflowY: "auto" }}
-      >
+    <div className="journal-layout">
+      <div className="journal-column journal-column-1">
         <JournalTopicsColumn />
       </div>
-
-      {/* Column 2: Entries */}
-      <div
-        style={{
-          flex: "1.5",
-          borderRight: "1px solid #ccc",
-          overflowY: "auto",
-        }}
-      >
+      <div className="journal-column journal-column-2">
         <JournalEntriesColumn />
       </div>
-
-      {/* Column 3: Goals */}
-      <div style={{ flex: "1", overflowY: "auto" }}>
+      <div className="journal-column journal-column-3">
         <JournalGoalsColumn />
       </div>
     </div>

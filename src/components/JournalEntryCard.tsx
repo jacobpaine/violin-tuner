@@ -8,7 +8,7 @@ interface Props {
 }
 
 const JournalEntryCard: React.FC<Props> = ({ entry }) => {
-  const [collapsed, setCollapsed] = useState(entry.collapsed ?? false);
+  const [collapsed, setCollapsed] = useState(entry.collapsed ?? true);
   const [editableContent, setEditableContent] = useState(entry.content);
   const [editableDate, setEditableDate] = useState(entry.date);
   const {
@@ -85,56 +85,57 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
           <div style={{ color: "#fff", marginTop: "0.5rem" }}>
             <strong>Tags:</strong>
             <div
-              style={{ display: "flex", flexWrap: "wrap", marginTop: "0.5rem" }}
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                marginTop: "0.5rem",
+                justifyContent: "space-around",
+              }}
             >
-              {goals.map((goal) => {
-                const goalMetrics = entry.goalData?.[goal.id] || {
+              {entry.goalIds?.map((goalId) => {
+                const goal = goals.find((g) => g.id === goalId);
+                const metrics = entry.goalData?.[goalId] ?? {
                   hours: 0,
                   money: 0,
                 };
 
-                return (
-                  <div key={goal.id} style={{ marginBottom: "0.5rem" }}>
-                    <label>
-                      <input
-                        type="checkbox"
-                        checked={entry.goalIds?.includes(goal.id) || false}
-                        onChange={() => toggleGoal(goal.id)}
-                      />{" "}
-                      {goal.name}
-                    </label>
-                    {entry.goalIds?.includes(goal.id) && (
-                      <div style={{ marginLeft: "1rem" }}>
-                        <label>Hours:</label>
+                return goal ? (
+                  <div key={goalId} style={{ marginBottom: "0.5rem" }}>
+                    <strong>{goal.name}</strong>
+                    <div>
+                      <label>
+                        Hours:
                         <input
                           type="number"
-                          value={goalMetrics.hours}
+                          value={metrics.hours}
                           onChange={(e) =>
-                            updateEntryGoalData(entry.id, goal.id, {
-                              ...goalMetrics,
+                            updateEntryGoalData(entry.id, goalId, {
+                              ...metrics,
                               hours: parseFloat(e.target.value) || 0,
                             })
                           }
-                          placeholder="Hours"
-                          style={{ width: "60px", marginRight: "0.5rem" }}
+                          style={{ width: "60px", marginLeft: "0.5rem" }}
                         />
-                        <label>$:</label>
+                      </label>
+                    </div>
+                    <div>
+                      <label>
+                        Cost:
                         <input
                           type="number"
-                          value={goalMetrics.money}
+                          value={metrics.money}
                           onChange={(e) =>
-                            updateEntryGoalData(entry.id, goal.id, {
-                              ...goalMetrics,
+                            updateEntryGoalData(entry.id, goalId, {
+                              ...metrics,
                               money: parseFloat(e.target.value) || 0,
                             })
                           }
-                          placeholder="$"
-                          style={{ width: "60px" }}
+                          style={{ width: "60px", marginLeft: "0.5rem" }}
                         />
-                      </div>
-                    )}
+                      </label>
+                    </div>
                   </div>
-                );
+                ) : null;
               })}
             </div>
           </div>

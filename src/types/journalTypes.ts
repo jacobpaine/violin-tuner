@@ -16,8 +16,10 @@ export interface JournalEntry {
 export interface JournalGoal {
   id: string;
   name: string;
+  description?: string;
   hourTarget?: number;
   moneyTarget?: number;
+  topicIds?: string[];
 }
 
 export interface JournalTopic {

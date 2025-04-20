@@ -3,7 +3,6 @@
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
-  overflow-y: auto;
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -73,4 +72,52 @@ button.start-listening:active {
 
 .column-header {
   color: #fff;
+}
+
+.journal-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  flex-direction: row;
+}
+
+.journal-column {
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.journal-column-1 {
+  flex: 1;
+  border-right: 1px solid #ccc;
+}
+
+.journal-column-2 {
+  flex: 1.5;
+  border-right: 1px solid #ccc;
+}
+
+.journal-column-3 {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .journal-layout {
+    flex-direction: column;
+  }
+
+  .journal-column-1,
+  .journal-column-2,
+  .journal-column-3 {
+    flex: unset;
+    border-right: none;
+    border-bottom: 1px solid #ccc;
+  }
+}
+
+.goal-button {
+  background: transparent;
+  border: none;
+  color: #999;
+  fontsize: 0.9rem;
+  cursor: pointer;
 }
