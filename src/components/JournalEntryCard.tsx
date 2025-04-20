@@ -11,21 +11,8 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
   const [collapsed, setCollapsed] = useState(entry.collapsed ?? true);
   const [editableContent, setEditableContent] = useState(entry.content);
   const [editableDate, setEditableDate] = useState(entry.date);
-  const {
-    deleteEntry,
-    goals,
-    updateEntryGoals,
-    updateEntryGoalData,
-    updateEntryContent,
-  } = useJournal();
-
-  const toggleGoal = (goalId: string) => {
-    const current = entry.goalIds || [];
-    const next = current.includes(goalId)
-      ? current.filter((id) => id !== goalId)
-      : [...current, goalId];
-    updateEntryGoals(entry.id, next);
-  };
+  const { deleteEntry, goals, updateEntryGoalData, updateEntryContent } =
+    useJournal();
 
   return (
     <div

@@ -118,6 +118,6 @@ button.start-listening:active {
   background: transparent;
   border: none;
   color: #999;
-  fontsize: 0.9rem;
+  font-size: 0.9rem;
   cursor: pointer;
 }
