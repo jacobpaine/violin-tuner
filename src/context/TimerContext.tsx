@@ -91,6 +91,7 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
         total: { focus: 0, shortBreak: 0 },
         elapsedTime: { focus: 0, shortBreak: 0 },
         completedCounts: { focus: 0, shortBreak: 0 },
+        lastUpdated: Date.now(),
         ...initial,
       },
     }));
