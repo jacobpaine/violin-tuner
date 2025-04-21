@@ -7,6 +7,11 @@ import React, {
 } from "react";
 import { Mode } from "../types/timerTypes";
 
+export interface TimerLog {
+  mode: Mode;
+  seconds: number;
+  timestamp: number;
+}
 export interface TimerData {
   mode: Mode;
   isRunning: boolean;
@@ -17,6 +22,7 @@ export interface TimerData {
   total: { focus: number; shortBreak: number };
   completedCounts: { focus: number; shortBreak: number };
   lastUpdated: number;
+  logs: TimerLog[];
 }
 
 interface TimerContextType {
@@ -64,10 +70,15 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
   }, [timers]);
 
   const updateTimer = (key: string, updates: Partial<TimerData>) => {
-    setTimers((prev) => ({
-      ...prev,
-      [key]: { ...prev[key], ...updates },
-    }));
+    setTimers((prev) => {
+      const newTimer = { ...prev[key], ...updates };
+      localStorage.setItem(key, JSON.stringify(newTimer));
+
+      return {
+        ...prev,
+        [key]: newTimer,
+      };
+    });
   };
 
   const removeTimer = (key: string) => {
@@ -92,6 +103,7 @@ export const TimerProvider = ({ children }: { children: ReactNode }) => {
         elapsedTime: { focus: 0, shortBreak: 0 },
         completedCounts: { focus: 0, shortBreak: 0 },
         lastUpdated: Date.now(),
+        logs: [],
         ...initial,
       },
     }));

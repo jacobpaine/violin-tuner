@@ -5,18 +5,46 @@ type SummaryProps = {
   initialDays?: number;
 };
 
-type TimerData = {
-  title: string;
-  elapsedTime: { focus: number; shortBreak: number };
-  total?: { focus: number; shortBreak: number };
-  lastUpdated: number;
+type TimerLog = {
+  mode: "focus" | "shortBreak";
+  seconds: number;
+  timestamp: number;
 };
 
-const getTimerSummaries = (
+type TimerData = {
+  title: string;
+  logs?: TimerLog[];
+  elapsedTime: { focus: number; shortBreak: number };
+  startedAt: number | null;
+  isRunning: boolean;
+  mode: "focus" | "shortBreak";
+};
+
+const dayLabels = [
+  { key: "Sun", label: "Sun" },
+  { key: "Mon", label: "M" },
+  { key: "Tue", label: "T" },
+  { key: "Wed", label: "W" },
+  { key: "Thu", label: "T" },
+  { key: "Fri", label: "F" },
+  { key: "Sat", label: "Sat" },
+];
+
+const getDayKey = (date: Date) => {
+  return dayLabels[date.getDay()].key;
+};
+
+const getTimerDaySummaries = (
   days: number
-): { title: string; totalSeconds: number }[] => {
-  const cutoff = Date.now() - days * 24 * 60 * 60 * 1000;
-  const summaries: { title: string; totalSeconds: number }[] = [];
+): {
+  title: string;
+  totalsByDay: Record<string, number>;
+  totalSeconds: number;
+}[] => {
+  const now = Date.now();
+  const cutoff = now - days * 24 * 60 * 60 * 1000;
+  const summaries: Record<string, Record<string, number>> = {};
+  const totalPerTimer: Record<string, number> = {};
 
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
@@ -27,32 +55,42 @@ const getTimerSummaries = (
       if (!raw) continue;
 
       const parsed: TimerData = JSON.parse(raw);
+      const title = parsed.title || key;
+      const logs = parsed.logs || [];
 
-      if (!parsed.lastUpdated || parsed.lastUpdated < cutoff) continue;
+      for (const log of logs) {
+        if (log.timestamp < cutoff) continue;
+        const day = getDayKey(new Date(log.timestamp));
+        summaries[title] ??= {};
+        summaries[title][day] = (summaries[title][day] || 0) + log.seconds;
+        totalPerTimer[title] = (totalPerTimer[title] || 0) + log.seconds;
+      }
 
-      const focus =
-        (parsed.elapsedTime?.focus || 0) + (parsed.total?.focus || 0);
-      const shortBreak =
-        (parsed.elapsedTime?.shortBreak || 0) + (parsed.total?.shortBreak || 0);
-      const totalSeconds = focus + shortBreak;
-
-      summaries.push({ title: parsed.title || key, totalSeconds });
+      if (parsed.isRunning && parsed.startedAt) {
+        const realElapsed = Math.floor((now - parsed.startedAt) / 1000);
+        const currentElapsed =
+          (parsed.elapsedTime?.[parsed.mode] || 0) + realElapsed;
+        const today = getDayKey(new Date(now));
+        summaries[title] ??= {};
+        summaries[title][today] =
+          (summaries[title][today] || 0) + currentElapsed;
+        totalPerTimer[title] = (totalPerTimer[title] || 0) + currentElapsed;
+      }
     } catch {
       continue;
     }
   }
 
-  return summaries.sort((a, b) => b.totalSeconds - a.totalSeconds);
+  return Object.entries(summaries).map(([title, totalsByDay]) => ({
+    title,
+    totalsByDay,
+    totalSeconds: totalPerTimer[title] || 0,
+  }));
 };
 
 const Summary: React.FC<SummaryProps> = ({ initialDays = 7 }) => {
   const [days, setDays] = useState<number>(initialDays);
-  const [refreshCounter, setRefreshCounter] = useState(0);
-
-  const summaries = useMemo(
-    () => getTimerSummaries(days),
-    [days, refreshCounter]
-  );
+  const summaries = useMemo(() => getTimerDaySummaries(days), [days]);
 
   return (
     <div style={{ padding: "1rem", color: "white" }}>
@@ -66,35 +104,39 @@ const Summary: React.FC<SummaryProps> = ({ initialDays = 7 }) => {
           <input
             type="number"
             value={days}
-            onChange={(e) => {
-              const val = Math.max(1, parseInt(e.target.value) || 1);
-              setDays(val);
-              setRefreshCounter((c) => c + 1); // ✅ force refresh
-            }}
+            onChange={(e) =>
+              setDays(Math.max(1, parseInt(e.target.value) || 1))
+            }
             style={{ width: "60px", marginRight: "4px" }}
           />
           day{days !== 1 ? "s" : ""}
         </label>
       </div>
 
-      <table
-        style={{
-          width: "50%",
-          borderCollapse: "collapse",
-          justifySelf: "center",
-        }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
           <tr>
             <th
               style={{
-                textAlign: "center",
+                textAlign: "left",
                 padding: "0.5rem",
                 borderBottom: "2px solid #ccc",
               }}
             >
               Timer
             </th>
+            {dayLabels.map(({ key, label }) => (
+              <th
+                key={key}
+                style={{
+                  padding: "0.5rem",
+                  borderBottom: "2px solid #ccc",
+                  textAlign: "center",
+                }}
+              >
+                {label}
+              </th>
+            ))}
             <th
               style={{
                 textAlign: "right",
@@ -102,14 +144,22 @@ const Summary: React.FC<SummaryProps> = ({ initialDays = 7 }) => {
                 borderBottom: "2px solid #ccc",
               }}
             >
-              Time
+              Total
             </th>
           </tr>
         </thead>
         <tbody>
-          {summaries.map(({ title, totalSeconds }) => (
+          {summaries.map(({ title, totalsByDay, totalSeconds }) => (
             <tr key={title}>
               <td style={{ padding: "0.5rem" }}>{title}</td>
+              {dayLabels.map(({ key }) => (
+                <td
+                  key={key}
+                  style={{ padding: "0.5rem", textAlign: "center" }}
+                >
+                  {totalsByDay[key] ? formatDuration(totalsByDay[key]) : "-"}
+                </td>
+              ))}
               <td style={{ padding: "0.5rem", textAlign: "right" }}>
                 {formatDuration(totalSeconds)}
               </td>
@@ -118,7 +168,7 @@ const Summary: React.FC<SummaryProps> = ({ initialDays = 7 }) => {
           {summaries.length === 0 && (
             <tr>
               <td
-                colSpan={2}
+                colSpan={dayLabels.length + 2}
                 style={{
                   padding: "0.5rem",
                   textAlign: "center",

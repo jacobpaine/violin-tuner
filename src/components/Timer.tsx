@@ -21,25 +21,39 @@ const Timer: React.FC<{
   const [editableTimeInput, setEditableTimeInput] = useState("30m");
 
   const toggleStart = () => {
+    const now = Date.now();
+
     if (!timer.isRunning) {
+      // STARTING
       updateTimer(storageKey, {
         isRunning: true,
-        startedAt: Date.now(),
-        lastUpdated: Date.now(),
+        startedAt: now,
+        lastUpdated: now,
       });
     } else {
+      // PAUSING — log time
+      const currentElapsed = Math.floor((now - timer.startedAt!) / 1000);
+
       updateTimer(storageKey, {
         isRunning: false,
         startedAt: null,
         elapsedTime: {
           ...timer.elapsedTime,
-          [timer.mode]: timer.elapsedTime[timer.mode],
+          [timer.mode]: timer.elapsedTime[timer.mode] + currentElapsed,
         },
         total: {
           ...timer.total,
-          [timer.mode]: timer.total[timer.mode],
+          [timer.mode]: timer.total[timer.mode] + currentElapsed,
         },
-        lastUpdated: Date.now(),
+        logs: [
+          ...(timer.logs || []),
+          {
+            mode: timer.mode,
+            seconds: currentElapsed,
+            timestamp: now,
+          },
+        ],
+        lastUpdated: now,
       });
     }
   };
@@ -108,6 +122,14 @@ const Timer: React.FC<{
             ...timer.elapsedTime,
             [timer.mode]: 0,
           },
+          logs: [
+            ...(timer.logs || []),
+            {
+              mode: timer.mode,
+              seconds: currentElapsed,
+              timestamp: Date.now(),
+            },
+          ],
           startedAt: null,
           lastUpdated: Date.now(),
         });
