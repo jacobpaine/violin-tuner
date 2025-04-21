@@ -1,4 +1,4 @@
-# finetunedfunctions
+# finetunedfunctions.com
 
 This is project deployment repo for some of the productivity tools I enjoy using on the daily. Currently it holds:
 
