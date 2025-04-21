@@ -1,4 +1,87 @@
-# Violin Tuner App
+# finetunedfunctions
+
+This is project deployment repo for some of the productivity tools I enjoy using on the daily. Currently it holds:
+
+#### Timer
+#### Journal
+#### Violin Tuner
+
+I'll try to maintain separate repos for new tools. I build these tools primarily for my own use and as portfolio fodder. Feedback is encouraged. 
+
+Additional tools forthcoming. 
+
+
+# 📓 Journal
+
+A personal journaling and productivity tracker that links entries to goals, tracks hours and money spent, and gives you insight into your progress over time.
+
+Built with **React**, **TypeScript**, and **IndexedDB** for offline-first persistence.
+
+---
+
+## 🧠 Features
+
+- 🧱 **Three-Column Layout**: 
+  - Topics (Projects/Areas)
+  - Journal Entries (organized by date)
+  - Goals (taggable, editable, and tracked)
+
+- 📝 **Journal Entries**:
+  - Linked to a selected topic
+  - Automatically tagged with goals associated to that topic
+  - Track `hours` and `money` spent per goal
+  - Collapsible for a clean writing flow
+
+- 🎯 **Goals**:
+  - Editable name, description, and time/cost targets
+  - Tag goals to multiple topics
+  - Automatically appear in entries with matching topics
+  - Displays real-time progress (`e.g. 18.5 / 100 hrs`)
+
+- 📈 **Breakdown View**:
+  - Toggle to a summary page showing time/money spent per goal
+  - Filter by recent days (e.g. last 7, 30, 90 days)
+
+- 💾 **Offline-First & Persistent**:
+  - Uses **IndexedDB** to store everything in your browser
+  - Works without a backend
+
+- 🧳 **Import / Export**:
+  - Download your entire journal as a JSON backup
+  - Upload it again to restore
+
+---
+
+
+# ⏳ Pomodoro Timer App
+
+A powerful and customizable Pomodoro timer built with **React + TypeScript**, designed to help you stay focused and track your productivity goals over time. Includes editable session tracking, goal linking, and persistent storage using localStorage.
+
+---
+
+## 🚀 Features
+
+- 🎯 **Multiple Timers**: Create and manage as many independent timers as you like.
+- 🔁 **Focus & Break Modes**: Switch between focus and short break intervals.
+- 📊 **Total Tracking**: View and edit cumulative focus and break times.
+- 📌 **Goal System**: Create goals linked to timers with progress indicators.
+- 💾 **Persistent State**: All data (timers, goals, elapsed time) is saved in localStorage and restored on reload.
+- ✏️ **Editable Durations**: Set custom durations per timer.
+- 🎼 **End-of-Session Sound**: Optional audio melody plays at the end of a focus session.
+
+---
+
+## 🧱 Built With
+
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/) (recommended for development)
+- CSS Modules (can be swapped out for Tailwind or SCSS)
+- React Context for global timer state
+
+
+
+# Violin Tuner
 
 A web-based tuner intended for a violin.  The app detects the frequency of sounds in real-time, identifies the closest musical note, and provides feedback on how sharp or flat the pitch is.
 
@@ -6,7 +89,6 @@ Musical tuners can be especially finicky. This one is optimized for a violin, no
 
 This particular tuner is intended for our local community music center here in Nashville, the [Fiddle and Pick](https://fiddleandpick.com/).
 
-Deployed on my site, [Fine Tuned Functions](https://finetunedfunctions.com/tuner)
 ---
 
 ## Features
@@ -19,34 +101,6 @@ Deployed on my site, [Fine Tuned Functions](https://finetunedfunctions.com/tuner
 - **Open Note Buttons**: Play predefined tones for G3, D4, A4, and E5.
 - **Responsive Design**: Optimized for desktop and mobile devices.
 - **Dynamic Styling**: Visually appealing gradient backgrounds, note highlights, and feedback text.
-
----
-
-## Demo
-
-Include a screenshot or link to a live demo (if hosted).
-
----
-
-## Installation
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/your-repository-name.git
-   cd your-repository-name
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Start the development server**:
-   ```bash
-   npm run dev
-   ```
-
-4. Open your browser and navigate to `http://localhost:3000`.
 
 ---
 
@@ -79,11 +133,4 @@ Press the buttons for G, D, A, and E to hear their corresponding tones.
 ## License
 
 This project is available for non-commericial uses.
-
----
-
-## Acknowledgments
-
-- Inspired by the need for an intuitive and visually pleasing musical tuner.
-- Special thanks to the React and Web Audio API communities for their excellent resources and support.
 
