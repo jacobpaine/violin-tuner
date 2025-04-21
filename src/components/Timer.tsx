@@ -22,7 +22,11 @@ const Timer: React.FC<{
 
   const toggleStart = () => {
     if (!timer.isRunning) {
-      updateTimer(storageKey, { isRunning: true, startedAt: Date.now() });
+      updateTimer(storageKey, {
+        isRunning: true,
+        startedAt: Date.now(),
+        lastUpdated: Date.now(),
+      });
     } else {
       updateTimer(storageKey, {
         isRunning: false,
@@ -35,6 +39,7 @@ const Timer: React.FC<{
           ...timer.total,
           [timer.mode]: timer.total[timer.mode],
         },
+        lastUpdated: Date.now(),
       });
     }
   };
@@ -104,6 +109,7 @@ const Timer: React.FC<{
             [timer.mode]: 0,
           },
           startedAt: null,
+          lastUpdated: Date.now(),
         });
         return;
       }
@@ -118,6 +124,7 @@ const Timer: React.FC<{
           ...timer.elapsedTime,
           [timer.mode]: elapsedTime,
         },
+        lastUpdated: Date.now(),
       });
     };
 
@@ -166,6 +173,7 @@ const Timer: React.FC<{
               mode: newMode,
               secondsLeft:
                 timer.durations[newMode] - timer.elapsedTime[newMode],
+              lastUpdated: Date.now(),
             });
           }}
         >
@@ -194,6 +202,7 @@ const Timer: React.FC<{
                     ...timer.durations,
                     [timer.mode]: newSeconds,
                   },
+                  lastUpdated: Date.now(),
                 });
               }
               setIsEditingTime(false);

@@ -16,6 +16,7 @@ export interface TimerData {
   elapsedTime: { focus: number; shortBreak: number };
   total: { focus: number; shortBreak: number };
   completedCounts: { focus: number; shortBreak: number };
+  lastUpdated: number;
 }
 
 interface TimerContextType {
