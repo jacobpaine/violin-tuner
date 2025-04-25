@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import JournalTopicsColumn from "../components/JournalTopicColumn";
 import JournalEntriesColumn from "../components/JournalEntriesColumn";
 import JournalGoalsColumn from "../components/JournalGoalsColumn";
@@ -7,6 +7,7 @@ import {
   exportAllData,
   importAllData,
 } from "../utils/journalTransfer";
+import { startDailyAutoSave } from "../utils/journalUtils";
 
 const handleSave = async () => {
   const data = await exportAllData();
@@ -40,6 +41,9 @@ const handleLoad = async () => {
 };
 
 const JournalLayout: React.FC = () => {
+  useEffect(() => {
+    startDailyAutoSave();
+  }, []);
   return (
     <div>
       <div className="journal-layout">
