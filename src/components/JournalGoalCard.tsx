@@ -180,7 +180,7 @@ const JournalGoalCard: React.FC<Props> = ({ goal }) => {
                 borderRadius: "6px",
                 marginBottom: "0.5rem",
               }}
-              rows={2}
+              rows={10}
             />
           </div>
           <div
