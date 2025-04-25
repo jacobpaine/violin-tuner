@@ -1,6 +1,7 @@
 .app {
   margin: 0;
   padding: 0;
+  width: 100%;
   justify-self: center;
   flex-direction: row;
 }
@@ -126,6 +127,7 @@
   align-items: flex-start;
   gap: 2rem;
   margin-top: 2rem;
+  width: 100%;
 }
 
 h2 {
@@ -149,26 +151,16 @@ h3 {
 }
 
 .panels {
+  width: 100%;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: flex-start;
   gap: 2rem;
 }
 
 .left-panel {
-  max-width: 50%;
   flex-direction: column;
-  flex: 0 0 50%;
-}
-
-.right-panel {
-  flex: 0 0 50%;
-  max-width: 50%;
-  flex-direction: column;
-}
-
-.left-panel {
   padding: 1rem 1rem;
   background: linear-gradient(to bottom right, #f9f9f9, #ededed);
   border: 1px solid #ccc;
@@ -177,6 +169,7 @@ h3 {
 }
 
 .right-panel {
+  width: 70%;
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -204,8 +197,9 @@ h3 {
 }
 .timers-column {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 1rem;
+  flex-flow: wrap;
 }
 
 .goals-list {
