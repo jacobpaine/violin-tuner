@@ -66,7 +66,7 @@ const JournalEntryCard: React.FC<Props> = ({ entry }) => {
             onBlur={() =>
               updateEntryContent(entry.id, { content: editableContent })
             }
-            rows={5}
+            rows={15}
             style={{ width: "100%", marginBottom: "0.5rem" }}
           />
           <div style={{ color: "#fff", marginTop: "0.5rem" }}>
