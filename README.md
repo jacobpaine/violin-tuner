@@ -132,5 +132,5 @@ Press the buttons for G, D, A, and E to hear their corresponding tones.
 
 ## License
 
-This project is available for non-commericial uses.
+This project is available for non-commercial uses.
 
